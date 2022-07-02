@@ -1,11 +1,11 @@
 from abc import abstractmethod
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 import undetected_chromedriver as uc
 import time
+
+from captcha import solve_captcha
 
 
 class Sites:
@@ -14,9 +14,9 @@ class Sites:
 	def start_process(self):
 		pass
 
-register_username = 'jttgitdfhiitrydfhfgjefvj'
-register_password = 'Musqthcdjgd'
-register_email = 'jttgitdfhiitrydfhfgjefvj@gmail.com'
+register_username = 'hiopdrwsaredswaafr77'
+register_password = 'CHsdedxxzs'
+register_email = 'hiopdrwsaredswaafr77@gmail.com'
 
 username = register_username
 password = register_password
@@ -25,6 +25,7 @@ class NeoBux(Sites):
 	def __init__(self):
 		chrome_options = uc.ChromeOptions()
 		# chrome_options.add_argument('--user-data-dir=user_data')
+		chrome_options.add_argument("--disable-popup-blocking")
 		self.driver = uc.Chrome(driver_executable_path='/Applications/chromedriver', options=chrome_options)
 		self.wait_driver = WebDriverWait(self.driver, 400)
 
@@ -33,17 +34,24 @@ class NeoBux(Sites):
 		register_link = self.driver.find_element(By.XPATH, "//*[contains(text(), 'Register')]")
 		register_link.click()
 
+		time.sleep(1)
 		register_form = self.driver.find_element(By.TAG_NAME, 'tbody')
 		register_form.find_element(By.ID, 'nomedeutilizador').send_keys(register_username)
 		register_form.find_element(By.ID, 'palavrapasse').send_keys(register_password)
 		register_form.find_element(By.ID, 'palavrapasseconfirmacao').send_keys(register_password)
 		register_form.find_element(By.ID, 'emailprincipal').send_keys(register_email)
 		register_form.find_element(By.ID, 'anonascimento').send_keys('1990')
-		# TODO: add anti captcha
+
+		captcha_img = register_form.find_element(By.TAG_NAME, 'img').screenshot_as_base64
+		captcha_text = solve_captcha(captcha_img)
+		register_form.find_element(By.ID, 'codigo').send_keys(captcha_text)
+
 		register_form.find_element(By.ID, 'tosagree').click()
 		register_form.find_element(By.ID, 'ppagree').click()
+		register_form.find_element(By.ID, 'botao_registo').click()
 
 		self.driver.execute_script("window.open('about:blank','secondtab');")
+		time.sleep(1)
 		self.driver.switch_to.window(self.driver.window_handles[1])
 		verification_code = self.get_verification_from_gmail()
 		self.driver.close()
@@ -51,7 +59,10 @@ class NeoBux(Sites):
 
 		verification_code_field = self.driver.find_element(By.XPATH, "//input[@type='text']")
 		verification_code_field.send_keys(verification_code)
-		#TODO: add anti captcha
+		captcha_img = self.driver.find_element(By.TAG_NAME, 'img').screenshot_as_base64
+		captcha_text = solve_captcha(captcha_img)
+		self.driver.find_element(By.ID, 'codigo').send_keys(captcha_text)
+
 		finish_registration_link = self.driver.find_element(By.XPATH, "//*[contains(text(), 'finish registration')]")
 		finish_registration_link.click()
 
@@ -67,18 +78,18 @@ class NeoBux(Sites):
 		next_button[1].click()
 
 		self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//input[@type='password']")))
-		time.sleep(1)
+		time.sleep(3)
 		password_field = self.driver.find_element(By.XPATH, "//input[@type='password']")
 		password_field.send_keys(register_password)
 		next_button = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Next')]")
 		next_button[1].click()
 
 		self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'NeoBux')]")))
-		time.sleep(1)
-		neo_email = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'NeoBux')]")
+		time.sleep(3)
+		neo_email = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'New registration: Email verification')]")
 		neo_email[1].click()
 		self.wait_driver.until(EC.presence_of_element_located((By.XPATH,"//*[contains(text(), 'copy-paste')]/following::div[1]")))
-		verification_code = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'copy-paste')]/following::div[1]")[1].text
+		verification_code = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'copy-paste')]/following::div[1]")[-1].text
 		return verification_code
 
 	def start_process(self):
@@ -123,4 +134,4 @@ class NeoBux(Sites):
 
 if __name__ == '__main__':
 	web = NeoBux()
-	web.start_process()
+	web.register()
