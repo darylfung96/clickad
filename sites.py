@@ -14,9 +14,9 @@ class Sites:
 	def start_process(self):
 		pass
 
-register_username = 'hiopdrwsaredswaafr77'
-register_password = 'CHsdedxxzs'
-register_email = 'hiopdrwsaredswaafr77@gmail.com'
+register_username = 'guteerdseamouertdea53'
+register_password = 'CHzaedxsww'
+register_email = 'guteerdseamouertdea53@gmail.com'
 
 username = register_username
 password = register_password
@@ -89,6 +89,7 @@ class NeoBux(Sites):
 		neo_email = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'New registration: Email verification')]")
 		neo_email[1].click()
 		self.wait_driver.until(EC.presence_of_element_located((By.XPATH,"//*[contains(text(), 'copy-paste')]/following::div[1]")))
+		time.sleep(1)
 		verification_code = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'copy-paste')]/following::div[1]")[-1].text
 		return verification_code
 
