@@ -1,39 +1,91 @@
-from abc import abstractmethod
+from abc import abstractmethod, abstractproperty
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import undetected_chromedriver as uc
+# import undetected_chromedriver as uc
+import random
+import seleniumwire.undetected_chromedriver as uc
 import time
-
+from seleniumwire import webdriver
 from captcha import solve_captcha
+from urllib.request import urlopen
+import json
+# timezone
+from timezonefinder import TimezoneFinder
+from datetime import datetime
+from pytz import timezone
 
 
 class Sites:
 
+	@abstractproperty
+	def driver(self):
+		...
+
 	@abstractmethod
-	def start_process(self):
+	def start_process(self, username, password):
 		pass
 
-register_username = 'guteerdseamouertdea53'
-register_password = 'CHzaedxsww'
-register_email = 'guteerdseamouertdea53@gmail.com'
+	@abstractmethod
+	def quit(self):
+		pass
 
-username = register_username
-password = register_password
+	def get_ip(self):
+		self.driver.get('https://api.ipify.org/')
+		return self.driver.find_element(By.TAG_NAME, "body").text
+
+# register_username = 'guteerdseamouertdea53'
+# register_password = 'CHzaedxsww'
+# register_email = 'guteerdseamouertdea53@gmail.com'
+
+# username = register_username
+# password = register_password
+
+proxy_options = {
+    'proxy': {
+        'http': 'http://synthex1145:9cc8cb@167.160.89.19:10389',
+        'https': 'https://synthex1145:9cc8cb@167.160.89.19:10389',
+        'no_proxy': 'localhost,127.0.0.1'
+    }
+}
+
 
 class NeoBux(Sites):
 	def __init__(self):
 		chrome_options = uc.ChromeOptions()
 		# chrome_options.add_argument('--user-data-dir=user_data')
 		chrome_options.add_argument("--disable-popup-blocking")
-		self.driver = uc.Chrome(driver_executable_path='/Applications/chromedriver', options=chrome_options)
+		self.driver = uc.Chrome(driver_executable_path='/Applications/chromedriver', options=chrome_options, proxy_options=proxy_options)
 		self.wait_driver = WebDriverWait(self.driver, 400)
 
-	def register(self):
+	def quit(self):
+		self.driver.quit()
+
+	def is_valid_time(self):
+		# get location
+		# if late then don't do this bot automation
+		ip_address = self.get_ip()
+		url = f'http://ipinfo.io/{ip_address}/json'
+		response = urlopen(url)
+		data = json.load(response)
+		loc = data['loc']
+		lat, lng = loc.split(",")
+		lat = float(lat)
+		lng = float(lng)
+		timezone_finder = TimezoneFinder()
+		location_timezone = timezone_finder.timezone_at(lat=lat, lng=lng)
+		timezone_info = timezone(location_timezone)
+		time = datetime.now(timezone_info)
+		if time.hour < 21: # make sure in working hours (not too late or not too early)
+			return True
+		return False
+
+	def register(self, register_username, register_password, register_email, backup_email):
 		self.driver.get('http://www.neobux.com')
 		register_link = self.driver.find_element(By.XPATH, "//*[contains(text(), 'Register')]")
 		register_link.click()
 
+		self.wait_driver.until(EC.presence_of_element_located((By.TAG_NAME, "tbody")))
 		time.sleep(1)
 		register_form = self.driver.find_element(By.TAG_NAME, 'tbody')
 		register_form.find_element(By.ID, 'nomedeutilizador').send_keys(register_username)
@@ -49,11 +101,12 @@ class NeoBux(Sites):
 		register_form.find_element(By.ID, 'tosagree').click()
 		register_form.find_element(By.ID, 'ppagree').click()
 		register_form.find_element(By.ID, 'botao_registo').click()
+		# TODO get a check to stop registration if account has already been registered
 
 		self.driver.execute_script("window.open('about:blank','secondtab');")
 		time.sleep(1)
 		self.driver.switch_to.window(self.driver.window_handles[1])
-		verification_code = self.get_verification_from_gmail()
+		verification_code = self.get_verification_from_gmail(register_email, register_password, backup_email)
 		self.driver.close()
 		self.driver.switch_to.window(self.driver.window_handles[0])
 
@@ -66,7 +119,7 @@ class NeoBux(Sites):
 		finish_registration_link = self.driver.find_element(By.XPATH, "//*[contains(text(), 'finish registration')]")
 		finish_registration_link.click()
 
-	def get_verification_from_gmail(self):
+	def get_verification_from_gmail(self, register_email, register_password, backup_email):
 		self.driver.get('https://www.google.com/gmail/about/')
 		sign_in_link = self.driver.find_element(By.XPATH, "//*[contains(text(), 'Sign in')]")
 		sign_in_link.click()
@@ -83,6 +136,49 @@ class NeoBux(Sites):
 		password_field.send_keys(register_password)
 		next_button = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Next')]")
 		next_button[1].click()
+		time.sleep(3)
+
+		confirm_recovery_email = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Confirm your recovery email')]")
+		if len(confirm_recovery_email) != 0:
+			confirm_recovery_email[0].click()
+			self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//input[@type='email']")))
+			backup_email_field = self.driver.find_element(By.XPATH, "//input[@type='email']")
+			backup_email_field.send_keys(backup_email)
+			next_button = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Next')]")
+			next_button[1].click()
+
+			time.sleep(2)
+			notnow = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Not now')]")
+			if len(notnow) != 0:
+				notnow[0].click()
+
+		time.sleep(3)
+		smart_features = self.driver.find_elements(By.XPATH,
+		                                           "//div[contains(@class, 'aiW aiK')]/div/label[@class='aho']/div[@class='ahq']")
+		if len(smart_features) != 0:
+			smart_features[0].click()
+			time.sleep(1)
+			self.wait_driver.until(EC.presence_of_element_located((By.NAME, "data_consent_dialog_next")))
+			next_button = self.driver.find_elements(By.NAME, "data_consent_dialog_next")[0]
+			next_button.click()
+
+			self.wait_driver.until(EC.presence_of_element_located((By.XPATH,
+			                                                       "//div[contains(@class, 'aiW aiM')]/div/label[@class='aho']/div[@class='ahq']")))
+			limited_features = self.driver.find_elements(By.XPATH,
+			                                                       "//div[contains(@class, 'aiW aiM')]/div/label[@class='aho']/div[@class='ahq']")
+			limited_features[1].click()
+
+			self.wait_driver.until(EC.presence_of_element_located((By.NAME, "data_consent_dialog_done")))
+			done_button = self.driver.find_elements(By.NAME, 'data_consent_dialog_done')[0]
+			done_button.click()
+
+			self.wait_driver.until(EC.presence_of_element_located((By.NAME, "turn_off_cross_product")))
+			off_features = self.driver.find_elements(By.NAME, "turn_off_cross_product")
+			off_features[0].click()
+
+			self.wait_driver.until(EC.presence_of_element_located((By.NAME, "r")))
+			reload = self.driver.find_elements(By.NAME, "r")
+			reload[0].click()
 
 		self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'NeoBux')]")))
 		time.sleep(3)
@@ -93,7 +189,43 @@ class NeoBux(Sites):
 		verification_code = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'copy-paste')]/following::div[1]")[-1].text
 		return verification_code
 
-	def start_process(self):
+	def __go_profile(self):
+		profile_click = self.driver.find_elements(By.ID, 't_conta')
+		profile_click[0].click()
+
+	def __go_statistics(self):
+		profile_click = self.driver.find_elements(By.ID, 't_conta')
+		profile_click[0].click()
+
+		self.wait_driver.until(
+			EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Statistics')]")))
+		self.driver.find_elements(By.XPATH, "//div/a[contains(text(), 'Statistics')]")[1].click()
+
+	def __go_banners(self):
+		profile_click = self.driver.find_elements(By.ID, 't_conta')
+		profile_click[0].click()
+
+		self.wait_driver.until(
+			EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Banners')]")))
+		self.driver.find_elements(By.XPATH, "//div/a[contains(text(), 'Banners')]")[1].click()
+
+	def __go_coins(self):
+		self.driver.find_elements(By.XPATH, "//*[contains(text(), 'View Advertisements')]")[0].click()
+		self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Coins')]")[0].click()
+
+	def get_random_process(self):
+		random_times = random.randint(1, 10)
+
+		random_funcs = [self.__go_banners, self.__go_statistics, self.__go_coins, self.__go_profile]
+
+		for i in range(random_times):
+			random.choice(random_funcs)()
+			time.sleep(5)
+
+	def start_process(self, username, password):
+		if not self.is_valid_time():
+			return
+
 		self.driver.get('http://www.neobux.com')
 
 		advertisements_link_list = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'View Advertisements')]")
@@ -106,6 +238,11 @@ class NeoBux(Sites):
 			login_form.find_element(By.ID, 'Kf2').send_keys(password)
 			login_form.find_element(By.ID, 'Kf4').send_keys(password)
 			login_form.find_element(By.ID, 'botao_login').click()
+
+		# randomize
+		self.wait_driver.until(
+			EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'View Advertisements')]")))
+		self.get_random_process()
 
 		self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'View Advertisements')]")))
 		view_ad_button = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'View Advertisements')]")[0]
@@ -131,8 +268,3 @@ class NeoBux(Sites):
 
 			self.driver.switch_to.window(self.driver.window_handles[0])
 			# self.wait_driver.until(EC.visibility_of_element_located((By.XPATH, "//*[contains(text(), 'Fixed Advertisements')]")))
-
-
-if __name__ == '__main__':
-	web = NeoBux()
-	web.register()
