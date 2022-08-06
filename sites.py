@@ -1,4 +1,4 @@
-from abc import abstractmethod, abstractproperty
+from abc import abstractmethod, ABC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -16,11 +16,11 @@ from datetime import datetime
 from pytz import timezone
 
 
-class Sites:
+class Sites(ABC):
 
-	@abstractproperty
+	@property
 	def driver(self):
-		...
+		raise NotImplementedError
 
 	@abstractmethod
 	def start_process(self, username, password):
@@ -51,17 +51,35 @@ proxy_options = {
 
 
 class NeoBux(Sites):
-	def __init__(self):
+	def __init__(self, enable_time_check=False):
 		chrome_options = uc.ChromeOptions()
-		# chrome_options.add_argument('--user-data-dir=user_data')
 		chrome_options.add_argument("--disable-popup-blocking")
-		self.driver = uc.Chrome(driver_executable_path='/Applications/chromedriver', options=chrome_options, proxy_options=proxy_options)
+		chrome_options.add_argument("--incognito")
+		self._driver = uc.Chrome(driver_executable_path='/Applications/chromedriver',
+		                        options=chrome_options, proxy_options=None)
 		self.wait_driver = WebDriverWait(self.driver, 400)
+		self.enable_time_check = enable_time_check
+
+	@property
+	def driver(self):
+		return self._driver
+
+	@driver.setter
+	def driver(self, value):
+		self._driver = value
+
+	@driver.getter
+	def driver(self):
+		return self._driver
+
 
 	def quit(self):
 		self.driver.quit()
 
 	def is_valid_time(self):
+		if not self.enable_time_check:
+			return True
+
 		# get location
 		# if late then don't do this bot automation
 		ip_address = self.get_ip()
@@ -76,7 +94,7 @@ class NeoBux(Sites):
 		location_timezone = timezone_finder.timezone_at(lat=lat, lng=lng)
 		timezone_info = timezone(location_timezone)
 		time = datetime.now(timezone_info)
-		if time.hour < 21: # make sure in working hours (not too late or not too early)
+		if time.hour < 21:  # make sure in working hours (not too late or not too early)
 			return True
 		return False
 
@@ -142,6 +160,7 @@ class NeoBux(Sites):
 		if len(confirm_recovery_email) != 0:
 			confirm_recovery_email[0].click()
 			self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//input[@type='email']")))
+			time.sleep(1)
 			backup_email_field = self.driver.find_element(By.XPATH, "//input[@type='email']")
 			backup_email_field.send_keys(backup_email)
 			next_button = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Next')]")
