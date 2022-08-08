@@ -1,6 +1,7 @@
 from anticaptchaofficial.imagecaptcha import *
 import tempfile
 import base64
+import os
 
 solver = imagecaptcha()
 solver.set_verbose(1)
@@ -17,14 +18,15 @@ def solve_captcha(image_base64):
     # Get your softId here: https://anti-captcha.com/clients/tools/devcenter
     solver.set_soft_id(0)
 
-    tmp = tempfile.NamedTemporaryFile(mode='w')
+    tmp = tempfile.NamedTemporaryFile(mode='w', delete=False)
+    try:
+        tmp.write(base64.decodebytes(bytes(image_base64, 'ascii')))
+        captcha_text = solver.solve_and_return_solution(tmp.name)
+        if captcha_text != 0:
+            print("captcha text " + captcha_text)
+        else:
+            print("task finished with error " + solver.error_code)
+    finally:
+        os.remove(tmp.name)
 
-    with open(tmp.name, 'wb') as f:
-        f.write(base64.decodebytes(bytes(image_base64, 'ascii')))
-
-    captcha_text = solver.solve_and_return_solution(tmp.name)
-    if captcha_text != 0:
-        print("captcha text " + captcha_text)
-    else:
-        print("task finished with error " + solver.error_code)
     return captcha_text
