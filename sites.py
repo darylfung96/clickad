@@ -142,7 +142,7 @@ class NeoBux(Sites):
 		sign_in_link = self.driver.find_element(By.XPATH, "//*[contains(text(), 'Sign in')]")
 		sign_in_link.click()
 
-		self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Next')]")))
+		self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//button[@jsname='LgbsSe']")))
 		email_field = self.driver.find_element(By.XPATH, "//input[@type='email']")
 		email_field.send_keys(register_email)
 		next_button = self.driver.find_elements(By.XPATH, "//button[@jsname='LgbsSe']")
@@ -152,7 +152,7 @@ class NeoBux(Sites):
 		time.sleep(3)
 		password_field = self.driver.find_element(By.XPATH, "//input[@type='password']")
 		password_field.send_keys(register_password)
-		next_button = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Next')]")
+		next_button = self.driver.find_elements(By.XPATH, "//button[@jsname='LgbsSe']")
 		next_button[1].click()
 		time.sleep(3)
 
