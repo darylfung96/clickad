@@ -17,7 +17,7 @@ def solve_captcha(image_base64):
     # Get your softId here: https://anti-captcha.com/clients/tools/devcenter
     solver.set_soft_id(0)
 
-    tmp = tempfile.NamedTemporaryFile()
+    tmp = tempfile.NamedTemporaryFile(mode='w')
 
     with open(tmp.name, 'wb') as f:
         f.write(base64.decodebytes(bytes(image_base64, 'ascii')))
