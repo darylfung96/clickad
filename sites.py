@@ -156,9 +156,11 @@ class NeoBux(Sites):
 		next_button[1].click()
 		time.sleep(3)
 
-		confirm_recovery_email = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Confirm your recovery email')]")
-		if len(confirm_recovery_email) != 0:
-			confirm_recovery_email[0].click()
+		confirm_recovery_email_container = self.driver.find_elements(By.XPATH, "//div[@jsname='MZArnb']")
+		if len(confirm_recovery_email_container) != 0:
+			confirm_recovery_email_container = confirm_recovery_email_container[-1]
+			confirm_recovery_email = confirm_recovery_email_container.find_elements(By.TAG_NAME, 'li')[-2]
+			confirm_recovery_email.click()
 			self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//input[@type='email']")))
 			time.sleep(1)
 			backup_email_field = self.driver.find_element(By.XPATH, "//input[@type='email']")
