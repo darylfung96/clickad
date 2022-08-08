@@ -165,11 +165,11 @@ class NeoBux(Sites):
 			time.sleep(1)
 			backup_email_field = self.driver.find_element(By.XPATH, "//input[@type='email']")
 			backup_email_field.send_keys(backup_email)
-			next_button = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Next')]")
-			next_button[1].click()
+			next_button = self.driver.find_elements(By.XPATH, "//button[@jsname='LgbsSe']")
+			next_button[0].click()
 
 			time.sleep(2)
-			notnow = self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Not now')]")
+			notnow = self.driver.find_elements(By.XPATH, "//button[@jsname='bySMBb']")
 			if len(notnow) != 0:
 				notnow[0].click()
 
