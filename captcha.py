@@ -18,9 +18,10 @@ def solve_captcha(image_base64):
     # Get your softId here: https://anti-captcha.com/clients/tools/devcenter
     solver.set_soft_id(0)
 
-    tmp = tempfile.NamedTemporaryFile(mode='w', delete=False)
+    tmp = tempfile.NamedTemporaryFile(delete=False)
     try:
         tmp.write(base64.decodebytes(bytes(image_base64, 'ascii')))
+        tmp.close()
         captcha_text = solver.solve_and_return_solution(tmp.name)
         if captcha_text != 0:
             print("captcha text " + captcha_text)
