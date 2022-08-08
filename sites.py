@@ -145,7 +145,7 @@ class NeoBux(Sites):
 		self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Next')]")))
 		email_field = self.driver.find_element(By.XPATH, "//input[@type='email']")
 		email_field.send_keys(register_email)
-		next_button = self.driver.find_elements(By.CLASS_NAME, 'VfPpkd-vQzf8d')
+		next_button = self.driver.find_elements(By.XPATH, "//button[@jsname='LgbsSe']")
 		next_button[1].click()
 
 		self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//input[@type='password']")))
