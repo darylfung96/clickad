@@ -255,7 +255,7 @@ class NeoBux(Sites):
 			login_button.click()
 
 			login_form = self.driver.find_element(By.TAG_NAME, 'tbody')
-			login_form.find_element(By.ID, 'Kf1').send_keys(username)
+			login_form.find_element(By.ID, 'Kf1').send_keys(username[:14])  #neobux only allows 14 characters
 			login_form.find_element(By.ID, 'Kf2').send_keys(password)
 			login_form.find_element(By.ID, 'Kf4').send_keys(password)
 			login_form.find_element(By.ID, 'botao_login').click()
