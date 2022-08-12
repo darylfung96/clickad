@@ -258,6 +258,12 @@ class NeoBux(Sites):
 			login_form.find_element(By.ID, 'Kf1').send_keys(username[:14])  #neobux only allows 14 characters
 			login_form.find_element(By.ID, 'Kf2').send_keys(password)
 			login_form.find_element(By.ID, 'Kf4').send_keys(password)
+
+			if len(login_form.find_elements(By.ID, 'Kf3')) != 0:
+				captcha_img = login_form.find_element(By.TAG_NAME, 'img').screenshot_as_base64
+				captcha_text = solve_captcha(captcha_img)
+				login_form.find_element(By.ID, 'Kf3').send_keys(captcha_text)
+
 			login_form.find_element(By.ID, 'botao_login').click()
 
 		# randomize
