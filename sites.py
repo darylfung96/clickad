@@ -58,12 +58,12 @@ class NeoBux(Sites):
 
 		if proxy_link is not None:
 			proxy_options['proxy']['http'] = proxy_link
-			proxy_options['proxy']['https'] = proxy_link
+			proxy_options['proxy']['https'] = proxy_link.replace('http://', 'https://')
 		else:
 			proxy_options = None
 
 		self._driver = uc.Chrome(driver_executable_path='/Applications/chromedriver',
-		                        options=chrome_options, proxy_options=proxy_options)
+		                        options=chrome_options, seleniumwire_options=proxy_options)
 		self.wait_driver = WebDriverWait(self.driver, 400)
 		self.enable_time_check = enable_time_check
 
