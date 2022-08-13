@@ -259,7 +259,7 @@ class NeoBux(Sites):
 			login_form.find_element(By.ID, 'Kf2').send_keys(password)
 			login_form.find_element(By.ID, 'Kf4').send_keys(password)
 
-			if len(login_form.find_elements(By.ID, 'Kf3')) != 0:
+			if len(login_form.find_elements(By.XPATH, "//input[@type='text' and @id='Kf3']")) != 0:
 				captcha_img = login_form.find_element(By.TAG_NAME, 'img').screenshot_as_base64
 				captcha_text = solve_captcha(captcha_img)
 				login_form.find_element(By.ID, 'Kf3').send_keys(captcha_text)
