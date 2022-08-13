@@ -41,22 +41,29 @@ class Sites(ABC):
 # username = register_username
 # password = register_password
 
-proxy_options = {
-    'proxy': {
-        'http': 'http://synthex1145:9cc8cb@167.160.89.19:10389',
-        'https': 'https://synthex1145:9cc8cb@167.160.89.19:10389',
-        'no_proxy': 'localhost,127.0.0.1'
-    }
-}
-
 
 class NeoBux(Sites):
-	def __init__(self, enable_time_check=False):
+	def __init__(self, enable_time_check=False, proxy_link=None):
+		proxy_options = {
+			'proxy': {
+				'http': 'http://synthex1145:9cc8cb@167.160.89.19:10389',
+				'https': 'https://synthex1145:9cc8cb@167.160.89.19:10389',
+				'no_proxy': 'localhost,127.0.0.1'
+			}
+		}
+
 		chrome_options = uc.ChromeOptions()
 		chrome_options.add_argument("--disable-popup-blocking")
 		chrome_options.add_argument("--incognito")
+
+		if proxy_link is not None:
+			proxy_options['proxy']['http'] = proxy_link
+			proxy_options['proxy']['https'] = proxy_link
+		else:
+			proxy_options = None
+
 		self._driver = uc.Chrome(driver_executable_path='/Applications/chromedriver',
-		                        options=chrome_options, proxy_options=None)
+		                        options=chrome_options, proxy_options=proxy_options)
 		self.wait_driver = WebDriverWait(self.driver, 400)
 		self.enable_time_check = enable_time_check
 
