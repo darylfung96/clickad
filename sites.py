@@ -242,7 +242,7 @@ class NeoBux(Sites):
 		self.driver.find_elements(By.XPATH, "//*[contains(text(), 'Coins')]")[0].click()
 
 	def get_random_process(self):
-		random_times = random.randint(1, 10)
+		random_times = random.randint(1, 5)
 
 		random_funcs = [self.__go_banners, self.__go_statistics, self.__go_coins, self.__go_profile]
 
