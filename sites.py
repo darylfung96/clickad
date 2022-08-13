@@ -273,6 +273,10 @@ class NeoBux(Sites):
 
 			login_form.find_element(By.ID, 'botao_login').click()
 
+		# if username not found go to next user
+		if len(self.driver.find_elements(By.CLASS_NAME, 't_vermelho')) > 0:
+			return
+
 		# randomize
 		self.wait_driver.until(
 			EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'View Advertisements')]")))
