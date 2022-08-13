@@ -9,7 +9,7 @@ args = parser.parse_args()
 
 
 if __name__ == '__main__':
-	with open('data/gmail acc.bak', 'r') as f:
+	with open('data/neobux.txt', 'r') as f:
 		content = f.read()
 
 	with open('ports.txt', 'r') as ports_f:
