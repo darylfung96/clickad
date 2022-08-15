@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
 	with open('ports.txt', 'r') as ports_f:
 		ports = ports_f.read()
-		ports = ports.split("\n")[args.port_start]
+		ports = ports.split("\n")[args.port_start:]
 
 	email_list = content.split()
 	email_list = [email.split(":") for email in email_list][args.starting:]
