@@ -128,6 +128,7 @@ class NeoBux(Sites):
 
 	def register(self, register_username, register_password, register_email, backup_email):
 		self.driver.get('http://www.neobux.com')
+		self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Register')]")))
 		register_link = self.driver.find_element(By.XPATH, "//*[contains(text(), 'Register')]")
 		register_link.click()
 
