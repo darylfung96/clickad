@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+import os
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -14,6 +15,7 @@ import json
 from timezonefinder import TimezoneFinder
 from datetime import datetime
 from pytz import timezone
+from fake_useragent import UserAgent
 
 
 class Sites(ABC):
@@ -42,8 +44,13 @@ class Sites(ABC):
 # password = register_password
 
 
+cookies_dir = 'neobux_cookies'
+agent_dir = 'user_agents'
+os.makedirs(cookies_dir, exist_ok=True)
+os.makedirs(agent_dir, exist_ok=True)
+
 class NeoBux(Sites):
-	def __init__(self, enable_time_check=False, proxy_link=None):
+	def __init__(self, account_name, enable_time_check=False, proxy_link=None):
 		proxy_options = {
 			'proxy': {
 				'http': 'http://synthex1145:9cc8cb@167.160.89.19:10389',
@@ -52,9 +59,23 @@ class NeoBux(Sites):
 			}
 		}
 
+		# generate user agent
+		agent_file = os.path.join(agent_dir, f'{account_name}.txt')
+		if not os.path.isfile(agent_file):
+			ua = UserAgent()
+			user_agent = ua.random
+			with open(agent_file, 'w') as f:
+				f.write(user_agent)
+		else:
+			with open(agent_file, 'r') as f:
+				user_agent = f.read()
+
 		chrome_options = uc.ChromeOptions()
 		chrome_options.add_argument("--disable-popup-blocking")
 		chrome_options.add_argument("--incognito")
+
+		chrome_options.add_argument(f"--user-data-dir={os.path.join(cookies_dir, account_name)}")
+		chrome_options.add_argument(f"--user-agent={user_agent}")
 
 		if proxy_link is not None:
 			proxy_options['proxy']['http'] = proxy_link

@@ -20,10 +20,11 @@ if __name__ == '__main__':
 	email_list = content.split()
 	email_list = [email.split(":") for email in email_list][args.starting:]
 	for i, email in enumerate(email_list):
-		neobux = NeoBux(proxy_link=ports[i])
-		# neobux = NeoBux()
 		username = email[0].split('@')[0]
 		password = email[1]
 		backup_email = email[2]
+
+		neobux = NeoBux(username, proxy_link=ports[i])
+		# neobux = NeoBux()
 		neobux.start_process(username, password)
 		neobux.quit()
