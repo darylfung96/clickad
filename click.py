@@ -26,5 +26,13 @@ if __name__ == '__main__':
 
 		neobux = NeoBux(username, proxy_link=ports[i])
 		# neobux = NeoBux()
-		neobux.start_process(username, password)
-		neobux.quit()
+
+		try:
+			neobux.start_process(username, password)
+			neobux.quit()
+		except IndexError as e:
+			print(username, ' ', 'port: ', ports[i])
+			print(e)
+			print('===============')
+			neobux.quit()
+

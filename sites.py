@@ -127,7 +127,7 @@ class NeoBux(Sites):
 		return False
 
 	def register(self, register_username, register_password, register_email, backup_email):
-		self.driver.get('http://www.neobux.com')
+		self.driver.get('https://www.neobux.com')
 		self.wait_driver.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Register')]")))
 		register_link = self.driver.find_element(By.XPATH, "//*[contains(text(), 'Register')]")
 		register_link.click()
@@ -291,6 +291,8 @@ class NeoBux(Sites):
 			if len(login_form.find_elements(By.XPATH, "//input[@type='text' and @id='Kf3']")) != 0:
 				captcha_img = login_form.find_element(By.TAG_NAME, 'img').screenshot_as_base64
 				captcha_text = solve_captcha(captcha_img)
+				if captcha_text == None:
+					return
 				login_form.find_element(By.ID, 'Kf3').send_keys(captcha_text)
 
 			login_form.find_element(By.ID, 'botao_login').click()
