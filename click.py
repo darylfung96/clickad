@@ -10,7 +10,7 @@ args = parser.parse_args()
 
 
 if __name__ == '__main__':
-	with open('data/neobux.txt', 'r') as f:
+	with open('data/25.txt', 'r') as f:
 		content = f.read()
 
 	with open('ports.txt', 'r') as ports_f:
@@ -22,10 +22,10 @@ if __name__ == '__main__':
 	for i, email in enumerate(email_list):
 		username = email[0].split('@')[0]
 		password = email[1]
-		backup_email = email[2]
+		# backup_email = email[2]
 
-		neobux = NeoBux(username, proxy_link=ports[i])
-		# neobux = NeoBux()
+		# neobux = NeoBux(username, proxy_link=ports[i])
+		neobux = NeoBux(username)
 
 		try:
 			neobux.start_process(username, password)

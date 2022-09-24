@@ -11,12 +11,12 @@ args = parser.parse_args()
 def remove_registered_account(content):
 	content = content.split()[1:]
 	content = '\n'.join(content)
-	with open('data/neobux_register.txt', 'w') as f:
+	with open('data/order_17906052.txt', 'w') as f:
 		f.write(content)
 	return content
 
 if __name__ == '__main__':
-	with open('data/neobux_register.txt', 'r') as f:
+	with open('data/DropMeFiles_3K5N5/order2808696.txt', 'r') as f:
 		content = f.read()
 	email_list = content.split()
 	email_list = [email.split(":") for email in email_list]
@@ -28,7 +28,8 @@ if __name__ == '__main__':
 		username = email[0].split('@')[0]
 		password = email[1]
 		backup_email = email[2]
-		neobux = NeoBux(username, proxy_link=ports[i])
+		neobux = NeoBux(username)
+		# neobux = NeoBux(username, proxy_link=ports[i])
 		neobux.register(username, password, email[0], backup_email)
 		neobux.quit()
 

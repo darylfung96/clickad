@@ -3,9 +3,9 @@ import os
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-# import undetected_chromedriver as uc
+import undetected_chromedriver as uc
 import random
-import seleniumwire.undetected_chromedriver as uc
+# import seleniumwire.undetected_chromedriver as uc
 import time
 from seleniumwire import webdriver
 from captcha import solve_captcha
@@ -84,7 +84,10 @@ class NeoBux(Sites):
 			proxy_options = None
 
 		self._driver = uc.Chrome(driver_executable_path='/Applications/chromedriver',
+		                         version_main=105,
 		                        options=chrome_options, seleniumwire_options=proxy_options)
+		self.driver.maximize_window()
+		self.driver.delete_all_cookies()
 		self.wait_driver = WebDriverWait(self.driver, 400)
 		self.enable_time_check = enable_time_check
 
@@ -165,6 +168,9 @@ class NeoBux(Sites):
 
 		finish_registration_link = self.driver.find_element(By.XPATH, "//*[contains(text(), 'finish registration')]")
 		finish_registration_link.click()
+
+		time.sleep(1)
+		self.start_process(register_username, register_password)
 
 	def get_verification_from_gmail(self, register_email, register_password, backup_email):
 		self.driver.get('https://www.google.com/gmail/about/')
