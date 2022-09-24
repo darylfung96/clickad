@@ -13,9 +13,9 @@ To install the required packages
 Before registering account, make sure that the script is pointing to a right file containing
 accounts to register for Neobux. An example are
 ```angular2html
-gabynixony@gmail.com:Rhfcjnf1234:moskowu@mail.ru
-brockrusselu@gmail.com:Rhfcjnf1234:moskowu@mail.ru
-shahharoldy@gmail.com:Rhfcjnf1234:moskowu@mail.ru
+a@gmail.com:a:mos@mail.ru
+b@gmail.com:b:te@mail.ru
+c@gmail.com:password:er@mail.ru
 ```
 The format is USER_EMAIL:USER_PASSWORD:BACKUP_EMAIL 
 
